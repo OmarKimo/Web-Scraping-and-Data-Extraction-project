@@ -46,8 +46,8 @@ jobs:
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: pyinstaller -F -n plotter-win plotter.py
-            OUT_FILE_NAME: plotter-win.exe
+            CMD_BUILD: pyinstaller -F -n plotter plotter.py
+            OUT_FILE_NAME: plotter.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
     - uses: actions/checkout@v1
