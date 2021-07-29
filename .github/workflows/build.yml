@@ -39,19 +39,16 @@ jobs:
           - os: macos-latest
             TARGET: macos
             CMD_BUILD: >
-                pyinstaller -F -w -n plotter plotter.py &&
+                pyinstaller -F -n plotter plotter.py &&
                 cd dist/ &&
                 zip -r9 plotter-mac plotter.app/
             OUT_FILE_NAME: plotter-mac.zip
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: >
-                pyinstaller -F -w -n plotter plotter.py &&
-                cd dist/ &&
-                zip -r9 plotter-win plotter.exe/
-            OUT_FILE_NAME: plotter-win.zip
-            ASSET_MIME: application/zip
+            CMD_BUILD: pyinstaller -F -n plotter-win plotter.py
+            OUT_FILE_NAME: plotter-win.exe
+            ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.8
