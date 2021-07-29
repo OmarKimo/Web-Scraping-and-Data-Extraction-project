@@ -24,7 +24,7 @@ jobs:
     - name: Output Release URL File
       run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
     - name: Save Release URL File for publish
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v1
       with:
         name: release_url
         path: release_url.txt
@@ -46,14 +46,14 @@ jobs:
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: > 
-                pyinstaller -F -n plotter plotter.py
+            CMD_BUILD: >
+                pyinstaller -F -w -n plotter plotter.py &&
                 cd dist/ &&
                 zip -r9 plotter plotter.exe/
             OUT_FILE_NAME: plotter-win.zip
             ASSET_MIME: application/zip
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v1
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -66,7 +66,7 @@ jobs:
     - name: Build with pyinstaller for ${{matrix.TARGET}}
       run: ${{matrix.CMD_BUILD}}
     - name: Load Release URL File from release job
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v1
       with:
         name: release_url
     - name: Get Release File Name & Upload URL
