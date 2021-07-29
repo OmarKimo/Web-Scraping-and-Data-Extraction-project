@@ -41,7 +41,7 @@ jobs:
             CMD_BUILD: >
                 pyinstaller -F -w -n plotter plotter.py &&
                 cd dist/ &&
-                zip -r9 plotter plotter.app/
+                zip -r9 plotter-mac plotter.app/
             OUT_FILE_NAME: plotter-mac.zip
             ASSET_MIME: application/zip
           - os: windows-latest
@@ -49,7 +49,7 @@ jobs:
             CMD_BUILD: >
                 pyinstaller -F -w -n plotter plotter.py &&
                 cd dist/ &&
-                zip -r9 plotter plotter.exe/
+                zip -r9 plotter-win plotter.exe/
             OUT_FILE_NAME: plotter-win.zip
             ASSET_MIME: application/zip
     steps:
