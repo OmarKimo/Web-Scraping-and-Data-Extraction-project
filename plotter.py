@@ -92,8 +92,6 @@ class PlotWidget(QWidget):
         self.submit = QPushButton(text="Search")
         self.submit.setFont(self.DEFAULT_FONT)
 
-        self.stop = QPushButton("Stop")
-        self.stop.setFont(self.DEFAULT_FONT)
         #  Create layout
         input_layout1 = QHBoxLayout()
         input_layout1.addWidget(self.county_label)
@@ -114,10 +112,6 @@ class PlotWidget(QWidget):
         vlayout.addLayout(input_layout3)
         self.setLayout(vlayout)
 
-        self.dialog = QMessageBox()
-        self.dialog.setFont(self.DEFAULT_FONT)
-        self.dialog.setWindowIcon(self.DEFAULT_ICON)
-
         QObject.connect(self.submit, SIGNAL("clicked()"), self.launch_Thread)
 
     def launch_Thread(self):
@@ -125,7 +119,7 @@ class PlotWidget(QWidget):
         ).toString("MM/dd/yyyy"), self.date_range_to.date().toString("MM/dd/yyyy"), self.options, self))
         t.start()
 
-# pyinstaller -F --add-data "Python.png;." plotter.py
+# pyinstaller -F plotter.py
 
 if __name__ == "__main__":
 
