@@ -200,7 +200,7 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
             print(index, link)
             sleep(TIMEOUT)
 
-            response = sess.get(link)
+            response = sess.get(link, headers=browser_headers)
             soup = BeautifulSoup(response.content, 'html.parser')
 
             data[idx].append(
