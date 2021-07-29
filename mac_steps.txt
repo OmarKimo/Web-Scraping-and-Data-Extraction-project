@@ -1,5 +1,0 @@
-pip install pipenv
-pip install pyinstaller
-cd PROJECT_PATH
-pipenv shell
-pyinstaller -F plotter.py
