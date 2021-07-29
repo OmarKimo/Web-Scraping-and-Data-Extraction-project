@@ -119,8 +119,6 @@ class PlotWidget(QWidget):
         ).toString("MM/dd/yyyy"), self.date_range_to.date().toString("MM/dd/yyyy"), self.options, self))
         t.start()
 
-# pyinstaller -F plotter.py
-
 if __name__ == "__main__":
 
     response = requests.get(url)
