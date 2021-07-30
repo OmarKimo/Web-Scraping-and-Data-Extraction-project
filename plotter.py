@@ -67,6 +67,7 @@ class myThread(QThread):
             idx = 0
             sess = requests.session()
             save_file = os.path.join(os.getcwd(), "result.csv")
+            print(f"saved excel file path is {save_file}")
             with open(save_file, newline='', mode="a") as f:
                 csv_writer = csv.writer(f)
                 if os.stat(save_file).st_size == 0:
