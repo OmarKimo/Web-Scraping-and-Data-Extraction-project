@@ -45,7 +45,9 @@ jobs:
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: pyinstaller -F -n plotter plotter.py
+            CMD_BUILD: >
+                pyinstaller -F -n plotter plotter.py &&
+                cp dist/plotter.exe plotter.exe
             OUT_FILE_NAME: plotter.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
@@ -78,6 +80,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.get_release_info.outputs.upload_url }}
-        asset_path: ./dist/${{ matrix.OUT_FILE_NAME}}
+        asset_path: ./${{ matrix.OUT_FILE_NAME}}
         asset_name: ${{ matrix.OUT_FILE_NAME}}
         asset_content_type: ${{ matrix.ASSET_MIME}}
