@@ -4,10 +4,16 @@ from bs4 import BeautifulSoup
 import requests
 import logging
 
+
 url = "https://registers.maryland.gov/RowNetWeb/Estates/frmEstateSearch2.aspx"
 
-logging.basicConfig(filename="app.log", filemode="w", format="%(message)s")
-logger = logging.getLogger()
+cur_flname = os.path.splitext(os.path.basename(__file__))[0]
+LOG_FILENAME = 'Log_' + cur_flname + '.txt'
+logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO, filemode='w',
+                    format='%(message)s')
+# Output to screen
+logger = logging.getLogger(cur_flname)
+logger.addHandler(logging.StreamHandler())
 
 browser_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
