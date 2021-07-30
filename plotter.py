@@ -68,9 +68,23 @@ class myThread(QThread):
             sess = requests.session()
             save_file = os.path.join(os.getcwd(), "result.csv")
             print(f"saved excel file path is {save_file}")
-            with open(save_file, newline='', mode="a") as f:
+            basedir = os.path.dirname(save_file)
+            print(f"directory is {basedir}")
+            mod = "a"
+            if not os.path.isfile(save_file):
+                print("file not created")
+                os.chmod(basedir, 755)
+                os.system(f'echo test > "{save_file}"')
+                mod = "w"
+                if os.path.isfile(save_file):
+                    print("file created")
+                    os.chmod(save_file, 755)
+            else:
+                print("file is there")
+            
+            with open(save_file, newline='', mode=mod) as f:
                 csv_writer = csv.writer(f)
-                if os.stat(save_file).st_size == 0:
+                if mod == "w":
                     csv_writer.writerow(list_header)
 
                 for item in self.checkedItems:
