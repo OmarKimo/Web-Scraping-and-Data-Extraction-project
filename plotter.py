@@ -1,5 +1,5 @@
 from PySide2.QtGui import QFont, QStandardItemModel
-from PySide2.QtCore import QDateTime, QThread, Qt, QObject, SIGNAL, SLOT, Signal, Slot
+from PySide2.QtCore import QDateTime, QThread, Qt, SIGNAL
 from PySide2.QtWidgets import (
     QApplication,
     QLabel,
@@ -14,7 +14,6 @@ from PySide2.QtWidgets import (
 import sys
 from bs4 import BeautifulSoup
 import requests
-import threading
 from scraping_extraction import *
 
 url = "https://registers.maryland.gov/RowNetWeb/Estates/frmEstateSearch2.aspx"
@@ -54,24 +53,23 @@ class CheckableComboBox(QComboBox):
                 if item not in self.checkedItems:
                     self.checkedItems.append(item)
 
+
 class myThread(QThread):
     def __init__(self, checkedItems, in_date_range_from, in_date_range_to, optionsDict):
         QThread.__init__(self)
         self.checkedItems, self.in_date_range_from, self.in_date_range_to, self.optionsDict = checkedItems, in_date_range_from, in_date_range_to, optionsDict
 
-    def __del__(self):
-        self.wait()
-
     def run(self):
         try:
             data = []
             list_header = ["County", "Estate Number", "Filing Date", "Date of Death", "Type", "Status", "Name", "Decedent Name", "Will", "Date of Will", "Personal Reps First", "Personal Reps Middle", "Personal Reps Last", "Personal Reps Address", "PR Address 2", "PR City", "PR State", "PR Zip Code", "Date Opened", "Date Closed", "Attorney First", "Attorney Middle", "Attorney Last", "Attorney Address", "Attorney Address 2", "Attorney City", "Attorney State", "Attorney Zip Code"
-                        ]
+                           ]
             idx = 0
             sess = requests.session()
-            with open('./result.csv', newline='', mode="a") as f:
+            save_file = os.path.join(os.getcwd(), "result.csv")
+            with open(save_file, newline='', mode="a") as f:
                 csv_writer = csv.writer(f)
-                if os.stat("result.csv").st_size == 0:
+                if os.stat(save_file).st_size == 0:
                     csv_writer.writerow(list_header)
 
                 for item in self.checkedItems:
@@ -94,12 +92,13 @@ class myThread(QThread):
 
                     links = []
                     table = soup.find(name="table", attrs={
-                                    "id": "dgSearchResults"})
+                        "id": "dgSearchResults"})
                     if not table:
                         print(
                             f"Search Criteria Returned No Results. [{in_county} from {self.in_date_range_from} to {self.in_date_range_to}]")
                         continue
-                    print(f"Counting records for {in_county} from {self.in_date_range_from} to {self.in_date_range_to}....")
+                    print(
+                        f"Counting records for {in_county} from {self.in_date_range_from} to {self.in_date_range_to}....")
                     HTML_data = table.findAll(name="tr")
                     cnt = 0
                     for element in HTML_data[1:-1]:
@@ -183,12 +182,14 @@ class myThread(QThread):
 
                         rest = HTML_data[-1]
 
-                    print(f"There are total of {cnt} records for {in_county} from {self.in_date_range_from} to {self.in_date_range_to}.")
+                    print(
+                        f"There are total of {cnt} records for {in_county} from {self.in_date_range_from} to {self.in_date_range_to}.")
 
                     self.emit(SIGNAL('setMaximum(int)'), cnt)
                     for index, link in enumerate(links):
                         self.emit(SIGNAL('setValue(int)'), index+1)
-                        print(f"Extracting record #{index+1} with link: {link}")
+                        print(
+                            f"Extracting record #{index+1} with link: {link}")
 
                         response = sess.get(link, headers=browser_headers)
                         try:
@@ -246,6 +247,7 @@ class myThread(QThread):
         except Exception as e:
             print(e)
             return
+
 
 class PlotWidget(QWidget):
     def __init__(self, optionsDict, parent=None):
@@ -311,12 +313,15 @@ class PlotWidget(QWidget):
         self.submit.clicked.connect(self.runLongTask)
 
     def runLongTask(self):
-        
+
         self.thread = myThread(self.county.checkedItems, self.date_range_from.date(
         ).toString("MM/dd/yyyy"), self.date_range_to.date().toString("MM/dd/yyyy"), self.options)
-        self.connect(self.thread, SIGNAL("setMaximum(int)"), self.progress.setMaximum)
-        self.connect(self.thread, SIGNAL("setValue(int)"), self.progress.setValue)
-        self.connect(self.thread, SIGNAL("finished()"), lambda: self.setEnabled(True))
+        self.connect(self.thread, SIGNAL("setMaximum(int)"),
+                     self.progress.setMaximum)
+        self.connect(self.thread, SIGNAL(
+            "setValue(int)"), self.progress.setValue)
+        self.connect(self.thread, SIGNAL("finished()"),
+                     lambda: self.setEnabled(True))
         self.thread.start()
         self.setEnabled(False)
 
