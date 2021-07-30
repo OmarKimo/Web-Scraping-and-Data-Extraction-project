@@ -2,18 +2,8 @@ import os
 import csv
 from bs4 import BeautifulSoup
 import requests
-import logging
-
 
 url = "https://registers.maryland.gov/RowNetWeb/Estates/frmEstateSearch2.aspx"
-
-cur_flname = os.path.splitext(os.path.basename(__file__))[0]
-LOG_FILENAME = 'Log_' + cur_flname + '.txt'
-logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO, filemode='w',
-                    format='%(message)s')
-# Output to screen
-logger = logging.getLogger(cur_flname)
-logger.addHandler(logging.StreamHandler())
 
 browser_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
@@ -119,7 +109,7 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
 
         for item in checkedItems:
             in_county = item.text()
-            logger.error(in_county)
+            # logger.error(in_county)
             
             res = sess.get(url, headers=browser_headers)
             soup = BeautifulSoup(res.content, 'html.parser')
@@ -137,10 +127,10 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
             links = []
             table = soup.find(name="table", attrs={"id": "dgSearchResults"})
             if not table:
-                logger.error(
-                    f"Search Criteria Returned No Results. [{in_county} from {in_date_range_from} to {in_date_range_to}]")
+                # logger.error(
+                #     f"Search Criteria Returned No Results. [{in_county} from {in_date_range_from} to {in_date_range_to}]")
                 continue
-            logger.error(f"Counting records for {in_county} from {in_date_range_from} to {in_date_range_to}....")
+            # logger.error(f"Counting records for {in_county} from {in_date_range_from} to {in_date_range_to}....")
             HTML_data = table.findAll(name="tr")
             cnt = 0
             for element in HTML_data[1:-1]:
@@ -164,7 +154,7 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
             current_page = 1
 
             while True:
-                logger.error(f"Page {current_page} with total {cnt} records.")
+                # logger.error(f"Page {current_page} with total {cnt} records.")
                 try:
                     current_page += 1
                     next_link = rest.find(
@@ -223,10 +213,12 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
 
                 rest = HTML_data[-1]
 
-            logger.error(f"There are total of {cnt} records for {in_county} from {in_date_range_from} to {in_date_range_to}.")
-
+            # logger.error(f"There are total of {cnt} records for {in_county} from {in_date_range_from} to {in_date_range_to}.")
+            
+            window.progress.setMaximum(cnt)
             for index, link in enumerate(links):
-                logger.error(f"Extracting record #{index+1} with link: {link}")
+                window.progress.setValue(index+1)
+                # logger.error(f"Extracting record #{index+1} with link: {link}")
 
                 response = sess.get(link, headers=browser_headers)
                 try:
@@ -277,7 +269,7 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
                     data[idx].append(item)
                 csv_writer.writerow(data[idx])
                 idx += 1
-            logger.error(
-                f"Extracting {in_county} records from {in_date_range_from} to {in_date_range_to} is done.")
-    logger.error("Finished.")
+            # logger.error(
+            #     f"Extracting {in_county} records from {in_date_range_from} to {in_date_range_to} is done.")
+    # logger.error("Finished.")
     window.setEnabled(True)

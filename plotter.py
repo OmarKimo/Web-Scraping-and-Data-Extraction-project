@@ -3,6 +3,7 @@ from PySide2.QtCore import QDateTime, Qt, QObject, SIGNAL
 from PySide2.QtWidgets import (
     QApplication,
     QLabel,
+    QProgressBar,
     QPushButton,
     QWidget,
     QVBoxLayout,
@@ -89,6 +90,8 @@ class PlotWidget(QWidget):
         self.submit = QPushButton(text="Search")
         self.submit.setFont(self.DEFAULT_FONT)
 
+        self.progress = QProgressBar()
+        
         #  Create layout
         input_layout1 = QHBoxLayout()
         input_layout1.addWidget(self.county_label)
@@ -103,10 +106,14 @@ class PlotWidget(QWidget):
         input_layout3 = QHBoxLayout()
         input_layout3.addWidget(self.submit)
 
+        input_layout4 = QHBoxLayout()
+        input_layout4.addWidget(self.progress)
+        
         vlayout = QVBoxLayout()
         vlayout.addLayout(input_layout1)
         vlayout.addLayout(input_layout2)
         vlayout.addLayout(input_layout3)
+        vlayout.addLayout(input_layout4)
         self.setLayout(vlayout)
 
         QObject.connect(self.submit, SIGNAL("clicked()"), self.launch_Thread)
