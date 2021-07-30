@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-11
+          - os: macos-latest
             TARGET: macos
             CMD_BUILD: >
                 pyinstaller -F -w -n plotter plotter.py &&
