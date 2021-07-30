@@ -1,9 +1,8 @@
-from PySide2.QtGui import QFont, QIcon, QStandardItemModel
+from PySide2.QtGui import QFont, QStandardItemModel
 from PySide2.QtCore import QDateTime, Qt, QObject, SIGNAL
 from PySide2.QtWidgets import (
     QApplication,
     QLabel,
-    QMessageBox,
     QPushButton,
     QWidget,
     QVBoxLayout,
@@ -62,10 +61,8 @@ class PlotWidget(QWidget):
         self.options = optionsDict
 
         self.DEFAULT_FONT = QFont("Calibri", 15)
-        self.DEFAULT_ICON = QIcon("Python.png")
 
         self.setWindowTitle("Web Scraping / Data Extraction")
-        self.setWindowIcon(self.DEFAULT_ICON)
         self.setMinimumWidth(500)
 
         self.county_label = QLabel("County: ")
@@ -119,17 +116,17 @@ class PlotWidget(QWidget):
         ).toString("MM/dd/yyyy"), self.date_range_to.date().toString("MM/dd/yyyy"), self.options, self))
         t.start()
 
-if __name__ == "__main__":
+########### main #############
 
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
+response = requests.get(url)
+soup = BeautifulSoup(response.content, 'html.parser')
 
-    county_form = soup.find(name="select", attrs={"id": "cboCountyId"})
-    optionsDict = {}
-    for option in county_form.find_all("option"):
-        optionsDict[option.text] = option["value"]
+county_form = soup.find(name="select", attrs={"id": "cboCountyId"})
+optionsDict = {}
+for option in county_form.find_all("option"):
+    optionsDict[option.text] = option["value"]
 
-    app = QApplication(sys.argv)
-    w = PlotWidget(optionsDict)
-    w.show()
-    sys.exit(app.exec_())
+app = QApplication(sys.argv)
+w = PlotWidget(optionsDict)
+w.show()
+sys.exit(app.exec_())

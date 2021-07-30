@@ -135,3 +135,6 @@ dmypy.json
 
 # Local History for Visual Studio Code
 .history/
+
+# output files
+result.csv

@@ -51,7 +51,7 @@ target = {
 }
 
 
-def split_name(name, link):
+def split_name(name):
     name = name.replace(",", " ")
     num = len(name.split())
     if num:
@@ -68,7 +68,6 @@ def split_name(name, link):
                 l[-2] = ""
             return l
         else:
-            # print(link, name)
             l = name.split()
             l[2] = ' '.join(l[2:])
             l = l[:3]
@@ -77,7 +76,7 @@ def split_name(name, link):
     return [""]*3
 
 
-def split_address(address, link):
+def split_address(address):
     num = address.count(",")
     if num:
         if num == 2:
@@ -94,7 +93,6 @@ def split_address(address, link):
             l.append(last.split()[1])
             return l
         else:
-            # print(link, address)
             return [""]*5
 
     return [""]*5
@@ -112,12 +110,12 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
         needs_header = os.stat('result.csv').st_size == 0
         if needs_header:
             csv_writer.writerow(list_header)
+
         for item in checkedItems:
-            logger.error(item.text())
             in_county = item.text()
-
+            logger.error(in_county)
+            
             res = sess.get(url, headers=browser_headers)
-
             soup = BeautifulSoup(res.content, 'html.parser')
 
             for key in ["__VIEWSTATEGENERATOR", "__VIEWSTATE", "__EVENTVALIDATION"]:
@@ -128,7 +126,6 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
             request_data["DateOfFilingTo"] = in_date_range_to
 
             res = sess.post(url, headers=browser_headers, data=request_data)
-
             soup = BeautifulSoup(res.content, 'html.parser')
 
             links = []
@@ -137,7 +134,7 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
                 logger.error(
                     f"Search Criteria Returned No Results. [{in_county} from {in_date_range_from} to {in_date_range_to}]")
                 continue
-            logger.error("Counting records....")
+            logger.error(f"Counting records for {in_county} from {in_date_range_from} to {in_date_range_to}....")
             HTML_data = table.findAll(name="tr")
             cnt = 0
             for element in HTML_data[1:-1]:
@@ -161,7 +158,7 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
             current_page = 1
 
             while True:
-                logger.error(f"page {current_page} with total {cnt} records.")
+                logger.error(f"Page {current_page} with total {cnt} records.")
                 try:
                     current_page += 1
                     next_link = rest.find(
@@ -176,7 +173,6 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
                     res = sess.post(url, headers=browser_headers, data=target)
 
                 except:
-                    #logger.error(f"No {current_page} link!")
                     try:
                         next_link = rest.findAll(
                             name="a", href=True, text="...")[-1]
@@ -194,7 +190,6 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
                             url, headers=browser_headers, data=target)
 
                     except:
-                        #logger.error("No ... link!")
                         break
 
                 soup = BeautifulSoup(res.content, 'html.parser')
@@ -222,10 +217,10 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
 
                 rest = HTML_data[-1]
 
-            logger.error(f"There are total of {cnt} records.")
+            logger.error(f"There are total of {cnt} records for {in_county} from {in_date_range_from} to {in_date_range_to}.")
 
             for index, link in enumerate(links):
-                logger.error(f"extracting record #{index+1} with link: {link}")
+                logger.error(f"Extracting record #{index+1} with link: {link}")
 
                 response = sess.get(link, headers=browser_headers)
                 try:
@@ -249,11 +244,11 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
                 personal_reps_name = personal_reps[:personal_reps.find("[")]
                 personal_reps_rest = personal_reps[personal_reps.find(
                     "[")+1:personal_reps.find("]")]
-                ret = split_name(personal_reps_name, link)
+                ret = split_name(personal_reps_name)
                 for item in ret:
                     data[idx].append(item)
 
-                ret = split_address(personal_reps_rest, link)
+                ret = split_address(personal_reps_rest)
                 for item in ret:
                     data[idx].append(item)
 
@@ -267,15 +262,16 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
                 attorney_rest = attorney[attorney.find(
                     "[")+1:attorney.find("]")]
 
-                ret = split_name(attorney_name, link)
+                ret = split_name(attorney_name)
                 for item in ret:
                     data[idx].append(item)
 
-                ret = split_address(attorney_rest, link)
+                ret = split_address(attorney_rest)
                 for item in ret:
                     data[idx].append(item)
                 csv_writer.writerow(data[idx])
                 idx += 1
-            logger.error(f"extracting {in_county} records from {in_date_range_from} to {in_date_range_to} is done.")
+            logger.error(
+                f"Extracting {in_county} records from {in_date_range_from} to {in_date_range_to} is done.")
     logger.error("Finished.")
     window.setEnabled(True)
