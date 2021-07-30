@@ -46,6 +46,8 @@ target = {
     "__EVENTVALIDATION": ""
 }
 
+flag = False
+
 
 def split_name(name):
     name = name.replace(",", " ")
@@ -103,9 +105,10 @@ def request(checkedItems, in_date_range_from, in_date_range_to, optionsDict, win
     sess = requests.session()
     with open('result.csv', newline='', mode="a") as f:
         csv_writer = csv.writer(f)
-        needs_header = os.stat('result.csv').st_size == 0
-        if needs_header:
+        global flag
+        if not flag:
             csv_writer.writerow(list_header)
+            flag = True
 
         for item in checkedItems:
             in_county = item.text()
