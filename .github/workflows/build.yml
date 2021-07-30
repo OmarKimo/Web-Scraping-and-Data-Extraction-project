@@ -48,7 +48,7 @@ jobs:
             CMD_BUILD: >
                 pyinstaller -F -n plotter plotter.py &&
                 7z a plotter ./dist/*
-            OUT_FILE_NAME: plotter.zip
+            OUT_FILE_NAME: plotter.7z
             ASSET_MIME: application/zip
     steps:
     - uses: actions/checkout@v1
