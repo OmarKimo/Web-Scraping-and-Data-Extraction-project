@@ -39,7 +39,7 @@ jobs:
           - os: macos-latest
             TARGET: macos
             CMD_BUILD: >
-                pyinstaller -F -n plotter plotter.py &&
+                pyinstaller -w -F -n plotter plotter.py &&
                 cd dist/ &&
                 zip -r9 plotter plotter.app/
             OUT_FILE_NAME: plotter.zip
