@@ -69,14 +69,14 @@ class myThread(QThread):
                         ]
             idx = 0
             sess = requests.session()
-            with open('result.csv', newline='', mode="a") as f:
+            with open('./result.csv', newline='', mode="a") as f:
                 csv_writer = csv.writer(f)
                 if os.stat("result.csv").st_size == 0:
                     csv_writer.writerow(list_header)
 
                 for item in self.checkedItems:
                     in_county = item.text()
-                    # logger.error(in_county)
+                    print(in_county)
 
                     res = sess.get(url, headers=browser_headers)
                     soup = BeautifulSoup(res.content, 'html.parser')
@@ -96,10 +96,10 @@ class myThread(QThread):
                     table = soup.find(name="table", attrs={
                                     "id": "dgSearchResults"})
                     if not table:
-                        # logger.error(
-                        #     f"Search Criteria Returned No Results. [{in_county} from {in_date_range_from} to {in_date_range_to}]")
+                        print(
+                            f"Search Criteria Returned No Results. [{in_county} from {self.in_date_range_from} to {self.in_date_range_to}]")
                         continue
-                    # logger.error(f"Counting records for {in_county} from {in_date_range_from} to {in_date_range_to}....")
+                    print(f"Counting records for {in_county} from {self.in_date_range_from} to {self.in_date_range_to}....")
                     HTML_data = table.findAll(name="tr")
                     cnt = 0
                     for element in HTML_data[1:-1]:
@@ -123,7 +123,7 @@ class myThread(QThread):
                     current_page = 1
 
                     while True:
-                        # logger.error(f"Page {current_page} with total {cnt} records.")
+                        print(f"Page {current_page} with total {cnt} records.")
                         try:
                             current_page += 1
                             next_link = rest.find(
@@ -183,12 +183,12 @@ class myThread(QThread):
 
                         rest = HTML_data[-1]
 
-                    # logger.error(f"There are total of {cnt} records for {in_county} from {in_date_range_from} to {in_date_range_to}.")
+                    print(f"There are total of {cnt} records for {in_county} from {self.in_date_range_from} to {self.in_date_range_to}.")
 
                     self.emit(SIGNAL('setMaximum(int)'), cnt)
                     for index, link in enumerate(links):
                         self.emit(SIGNAL('setValue(int)'), index+1)
-                        # logger.error(f"Extracting record #{index+1} with link: {link}")
+                        print(f"Extracting record #{index+1} with link: {link}")
 
                         response = sess.get(link, headers=browser_headers)
                         try:
@@ -240,12 +240,11 @@ class myThread(QThread):
                             data[idx].append(item)
                         csv_writer.writerow(data[idx])
                         idx += 1
-                    # logger.error(
-                    #     f"Extracting {in_county} records from {in_date_range_from} to {in_date_range_to} is done.")
-            # logger.error("Finished.")
+                    print(
+                        f"Extracting {in_county} records from {self.in_date_range_from} to {self.in_date_range_to} is done.")
+            print("Finished.")
         except Exception as e:
             print(e)
-            #self.finished.emit()
             return
 
 class PlotWidget(QWidget):
