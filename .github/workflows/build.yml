@@ -40,15 +40,15 @@ jobs:
             TARGET: macos
             CMD_BUILD: >
                 pyinstaller -F -n plotter plotter.py &&
-                zip -r9 plotter dist/
-            OUT_FILE_NAME: plotter.zip
+                zip -r9 plotter-mac dist/
+            OUT_FILE_NAME: plotter-mac.zip
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
             CMD_BUILD: >
-                pyinstaller -F -n plotter plotter.py &&
-                7z a plotter ./dist/*
-            OUT_FILE_NAME: plotter.7z
+                pyinstaller -n plotter plotter.py &&
+                7z a plotter-win ./dist/plotter
+            OUT_FILE_NAME: plotter-win.7z
             ASSET_MIME: application/zip
     steps:
     - uses: actions/checkout@v1

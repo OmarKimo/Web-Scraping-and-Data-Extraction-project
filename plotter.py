@@ -1,3 +1,4 @@
+# PyQT (GUI) imports
 from PySide2.QtGui import QFont, QStandardItemModel
 from PySide2.QtCore import QDateTime, QThread, Qt, SIGNAL
 from PySide2.QtWidgets import (
@@ -12,9 +13,16 @@ from PySide2.QtWidgets import (
     QDateEdit
 )
 import sys
-from bs4 import BeautifulSoup
+
+# Web scraping imports
 import requests
-from scraping_extraction import *
+from bs4 import BeautifulSoup
+from utils import *
+
+# other imports
+import os
+import csv
+from datetime import datetime
 
 url = "https://registers.maryland.gov/RowNetWeb/Estates/frmEstateSearch2.aspx"
 
@@ -66,7 +74,11 @@ class myThread(QThread):
                            ]
             idx = 0
             sess = requests.session()
-            save_file = os.path.join(os.getcwd(), "result.csv")
+            folder_name = datetime.now().strftime("%Y-%m-%d at %I.%M.%S %p")
+            save_folder = os.path.join(os.getcwd(), folder_name)
+            if not os.path.exists(save_folder):
+                os.makedirs(save_folder)
+            save_file = os.path.join(save_folder, "result.csv")
             print(f"saved excel file path is {save_file}")
             basedir = os.path.dirname(save_file)
             print(f"directory is {basedir}")
@@ -81,7 +93,7 @@ class myThread(QThread):
                     os.chmod(save_file, 755)
             else:
                 print("file is there")
-            
+
             with open(save_file, newline='', mode=mod) as f:
                 csv_writer = csv.writer(f)
                 if mod == "w":
