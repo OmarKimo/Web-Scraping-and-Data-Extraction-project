@@ -75,29 +75,27 @@ class myThread(QThread):
             idx = 0
             sess = requests.session()
             folder_name = datetime.now().strftime("%Y-%m-%d at %I.%M.%S %p")
-            save_folder = os.path.join(os.getcwd(), folder_name)
+            cur_dir = os.getcwd()
+            print(f"current directory is {cur_dir}")
+            save_folder = os.path.join(cur_dir, folder_name)
             if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+                os.mkdir(save_folder, mode=755)
+                print(f"{save_folder} is created")
             save_file = os.path.join(save_folder, "result.csv")
             print(f"saved excel file path is {save_file}")
             basedir = os.path.dirname(save_file)
-            print(f"directory is {basedir}")
-            mod = "a"
+            print(f"save directory is {basedir}")
             if not os.path.isfile(save_file):
-                print("file not created")
+                print("file not there")
                 os.chmod(basedir, 755)
                 os.system(f'echo test > "{save_file}"')
-                mod = "w"
                 if os.path.isfile(save_file):
                     print("file created")
                     os.chmod(save_file, 755)
-            else:
-                print("file is there")
 
-            with open(save_file, newline='', mode=mod) as f:
+            with open(save_file, newline='', mode="w") as f:
                 csv_writer = csv.writer(f)
-                if mod == "w":
-                    csv_writer.writerow(list_header)
+                csv_writer.writerow(list_header)
 
                 for item in self.checkedItems:
                     in_county = item.text()
@@ -134,7 +132,7 @@ class myThread(QThread):
                             cnt += 1
                             col_data = []
                             for col in cols:
-                                col_data.append(col.text)
+                                col_data.append(col.text.title())
                                 try:
                                     links.append(
                                         f"https://registers.maryland.gov/RowNetWeb/Estates/{col.find('a')['href']}")
@@ -196,7 +194,7 @@ class myThread(QThread):
                                 cnt += 1
                                 col_data = []
                                 for col in cols:
-                                    col_data.append(col.text)
+                                    col_data.append(col.text.title())
                                     try:
                                         links.append(
                                             f"https://registers.maryland.gov/RowNetWeb/Estates/{col.find('a')['href']}")
@@ -230,13 +228,13 @@ class myThread(QThread):
 
                         soup = BeautifulSoup(response.content, 'html.parser')
                         data[idx].append(
-                            soup.find(name="span", attrs={"id": "lblName"}).text)
+                            soup.find(name="span", attrs={"id": "lblName"}).text.title())
                         data[idx].append(
-                            soup.find(name="span", attrs={"id": "lblWill"}).text)
+                            soup.find(name="span", attrs={"id": "lblWill"}).text.title())
                         data[idx].append(soup.find(name="span", attrs={
-                            "id": "lblDateOfWill"}).text)
+                            "id": "lblDateOfWill"}).text.title())
                         personal_reps = soup.find(
-                            name="span", attrs={"id": "lblPersonalReps"}).text
+                            name="span", attrs={"id": "lblPersonalReps"}).text.title()
                         personal_reps_name = personal_reps[:personal_reps.find(
                             "[")]
                         personal_reps_rest = personal_reps[personal_reps.find(
@@ -250,11 +248,11 @@ class myThread(QThread):
                             data[idx].append(item)
 
                         data[idx].append(soup.find(name="span", attrs={
-                            "id": "lblDateOpened"}).text)
+                            "id": "lblDateOpened"}).text.title())
                         data[idx].append(soup.find(name="span", attrs={
-                            "id": "lblDateClosed"}).text)
+                            "id": "lblDateClosed"}).text.title())
                         attorney = soup.find(name="span", attrs={
-                            "id": "lblAttorney"}).text
+                            "id": "lblAttorney"}).text.title()
                         attorney_name = attorney[:attorney.find("[")]
                         attorney_rest = attorney[attorney.find(
                             "[")+1:attorney.find("]")]
