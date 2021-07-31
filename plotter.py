@@ -75,16 +75,24 @@ class myThread(QThread):
             idx = 0
             sess = requests.session()
             folder_name = datetime.now().strftime("%Y-%m-%d at %I.%M.%S %p")
-            cur_dir = os.getcwd()
+
+            script_path = os.path.abspath(__file__)
+            print(f"script abs path: {script_path}")
+            
+            cur_dir = os.path.dirname(script_path) # os.getcwd()
             print(f"current directory is {cur_dir}")
+
             save_folder = os.path.join(cur_dir, folder_name)
             if not os.path.exists(save_folder):
-                os.mkdir(save_folder, mode=755)
+                os.mkdir(save_folder)
                 print(f"{save_folder} is created")
+
             save_file = os.path.join(save_folder, "result.csv")
             print(f"saved excel file path is {save_file}")
+
             basedir = os.path.dirname(save_file)
             print(f"save directory is {basedir}")
+            
             if not os.path.isfile(save_file):
                 print("file not there")
                 os.chmod(basedir, 755)
@@ -234,14 +242,14 @@ class myThread(QThread):
                         data[idx].append(soup.find(name="span", attrs={
                             "id": "lblDateOfWill"}).text.title())
                         personal_reps = soup.find(
-                            name="span", attrs={"id": "lblPersonalReps"}).text.title()
+                            name="span", attrs={"id": "lblPersonalReps"}).text
                         personal_reps_name = personal_reps[:personal_reps.find(
                             "[")]
                         personal_reps_rest = personal_reps[personal_reps.find(
                             "[")+1:personal_reps.find("]")]
                         ret = split_name(personal_reps_name)
                         for item in ret:
-                            data[idx].append(item)
+                            data[idx].append(item.title())
 
                         ret = split_address(personal_reps_rest)
                         for item in ret:
@@ -252,14 +260,14 @@ class myThread(QThread):
                         data[idx].append(soup.find(name="span", attrs={
                             "id": "lblDateClosed"}).text.title())
                         attorney = soup.find(name="span", attrs={
-                            "id": "lblAttorney"}).text.title()
+                            "id": "lblAttorney"}).text
                         attorney_name = attorney[:attorney.find("[")]
                         attorney_rest = attorney[attorney.find(
                             "[")+1:attorney.find("]")]
 
                         ret = split_name(attorney_name)
                         for item in ret:
-                            data[idx].append(item)
+                            data[idx].append(item.title())
 
                         ret = split_address(attorney_rest)
                         for item in ret:
