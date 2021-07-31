@@ -76,8 +76,12 @@ class myThread(QThread):
             sess = requests.session()
             folder_name = datetime.now().strftime("%Y-%m-%d at %I.%M.%S %p")
 
-            script_path = os.path.abspath(__file__)
-            print(f"script abs path: {script_path}")
+            if getattr(sys, 'frozen', False) :
+                script_path = os.path.abspath(sys.executable)
+                print(f"script abs path (from executable): {script_path}")
+            else:
+                script_path = os.path.abspath(__file__)
+                print(f"script abs path (from script): {script_path}")
             
             cur_dir = os.path.dirname(script_path) # os.getcwd()
             print(f"current directory is {cur_dir}")
