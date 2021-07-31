@@ -99,11 +99,9 @@ class myThread(QThread):
             
             if not os.path.isfile(save_file):
                 print("file not there")
-                os.chmod(basedir, 755)
                 os.system(f'echo test > "{save_file}"')
                 if os.path.isfile(save_file):
                     print("file created")
-                    os.chmod(save_file, 755)
 
             with open(save_file, newline='', mode="w") as f:
                 csv_writer = csv.writer(f)
