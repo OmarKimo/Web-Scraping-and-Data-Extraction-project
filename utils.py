@@ -76,12 +76,18 @@ def split_address(address):
             l[-1] = last.split()[0]
             l.append(last.split()[1])
             l.insert(-3, "")
+            for i in range(5):
+                if i != 3:
+                    l[i] = l[i].title()
             return l
         elif num == 3:
             l = address.split(",")
             last = l[-1]
             l[-1] = last.split()[0]
             l.append(last.split()[1])
+            for i in range(5):
+                if i != 3:
+                    l[i] = l[i].title()
             return l
         else:
             return [""]*5
