@@ -23,6 +23,8 @@ from utils import *
 import os
 import csv
 from datetime import datetime
+import subprocess
+from time import sleep
 
 url = "https://registers.maryland.gov/RowNetWeb/Estates/frmEstateSearch2.aspx"
 
@@ -99,7 +101,9 @@ class myThread(QThread):
             
             if not os.path.isfile(save_file):
                 print("file not there")
-                os.system(f'echo test > "{save_file}"')
+                # os.system(f'echo test > "{save_file}"')
+                subprocess.Popen(f'echo test > "{save_file}"', shell=True, close_fds=True)
+                sleep(2)
                 if os.path.isfile(save_file):
                     print("file created")
 
