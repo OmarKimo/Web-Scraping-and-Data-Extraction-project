@@ -1,4 +1,4 @@
-
+from string import capwords
 
 browser_headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
@@ -74,20 +74,26 @@ def split_address(address):
             l = address.split(",")
             last = l[-1]
             l[-1] = last.split()[0]
-            l.append(last.split()[1])
+            if len(last.split()) > 1:
+                l.append(' '.join(last.split()[1:]))
+            else:
+                l.append("")
             l.insert(-3, "")
             for i in range(5):
                 if i != 3:
-                    l[i] = l[i].title()
+                    l[i] = capwords(l[i])
             return l
         elif num == 3:
             l = address.split(",")
             last = l[-1]
             l[-1] = last.split()[0]
-            l.append(last.split()[1])
+            if len(last.split()) > 1:
+                l.append(' '.join(last.split()[1:]))
+            else:
+                l.append("")
             for i in range(5):
                 if i != 3:
-                    l[i] = l[i].title()
+                    l[i] = capwords(l[i])
             return l
         else:
             return [""]*5
