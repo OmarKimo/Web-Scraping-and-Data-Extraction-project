@@ -96,6 +96,7 @@ class myThread(QThread):
                 print(f"{save_folder} is created")
 
             save_file = os.path.join(save_folder, "result.csv")
+            error_file = os.path.join(save_folder, "errors.txt")
             print(f"saved excel file path is {save_file}")
 
             basedir = os.path.dirname(save_file)
@@ -106,6 +107,8 @@ class myThread(QThread):
                 # os.system(f'echo test > "{save_file}"')
                 subprocess.Popen(
                     f'echo test > "{save_file}"', shell=True, close_fds=True)
+                subprocess.Popen(
+                    f'echo No Errors! > "{error_file}"', shell=True, close_fds=True)
                 sleep(2)
                 if os.path.isfile(save_file):
                     print("file created")
@@ -346,14 +349,15 @@ class myThread(QThread):
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                             print(exc_type, fname, exc_tb.tb_lineno)
-                            Errors.append(f"Problem with record #{index+1} with link: {link}")
+                            Errors.append((in_county, index, link, exc_type, fname))
                     print(
                         f"Extracting {in_county} records from {self.in_date_range_from} to {self.in_date_range_to} is done.")
             print("Finished.")
             if Errors:
-                print("\n\nErrors happened: ")
-                for i, error in enumerate(Errors):
-                    print(f"#{i}: {error}")
+                with open(error_file, mode="w") as f:
+                    f.write(f"{len(Errors)} Errors happened: \n")
+                    for i, error in enumerate(Errors):
+                        f.write(f"#{i+1}: county {error[0]}, record #{error[1]+1}, link {error[2]}, {error[3]} at {error[4]}\n")
         except Exception as e:
             print(e)
             exc_type, exc_obj, exc_tb = sys.exc_info()
