@@ -71,6 +71,7 @@ class myThread(QThread):
         self.checkedItems, self.in_date_range_from, self.in_date_range_to, self.optionsDict = checkedItems, in_date_range_from, in_date_range_to, optionsDict
 
     def run(self):
+        Errors = []
         try:
             data = []
             list_header = ["County", "Estate Number", "Filing Date", "Date of Death", "Type", "Status", "Name", "Decedent Name", "Will", "Date of Will", "Personal Reps First", "Personal Reps Middle", "Personal Reps Last", "Personal Reps Address", "PR Address 2", "PR City", "PR State", "PR Zip Code", "Date Opened", "Date Closed", "Attorney First", "Attorney Middle", "Attorney Last", "Attorney Address", "Attorney Address 2", "Attorney City", "Attorney State", "Attorney Zip Code"
@@ -228,117 +229,131 @@ class myThread(QThread):
 
                     self.emit(SIGNAL('setMaximum(int)'), cnt)
                     for index, link in enumerate(links):
-                        self.emit(SIGNAL('setValue(int)'), index+1)
-                        print(
-                            f"Extracting record #{index+1} with link: {link}")
-
-                        response = sess.get(link, headers=browser_headers)
                         try:
-                            response.raise_for_status()
-                        except:
-                            res = response.text
-                            first = res.find("ResetId=")+len("ResetId=")
-                            new_id = res[first:res.find('"', first)]
-                            browser_headers["Cookie"] = f"ASP.NET_SessionId={new_id}"
+                            self.emit(SIGNAL('setValue(int)'), index+1)
+                            print(
+                                f"Extracting record #{index+1} with link: {link}")
+
                             response = sess.get(link, headers=browser_headers)
+                            try:
+                                response.raise_for_status()
+                            except:
+                                res = response.text
+                                first = res.find("ResetId=")+len("ResetId=")
+                                new_id = res[first:res.find('"', first)]
+                                browser_headers["Cookie"] = f"ASP.NET_SessionId={new_id}"
+                                response = sess.get(link, headers=browser_headers)
 
-                        soup = BeautifulSoup(response.content, 'html.parser')
-                        data[idx].append(
-                            capwords(soup.find(name="span", attrs={"id": "lblName"}).text))
-                        data[idx].append(
-                            capwords(soup.find(name="span", attrs={"id": "lblWill"}).text))
-                        data[idx].append(capwords(soup.find(name="span", attrs={
-                            "id": "lblDateOfWill"}).text))
-                        # https://registers.maryland.gov/RowNetWeb/Estates/frmDocketImages.aspx?src=row&RecordId=975129107
-                        # https://registers.maryland.gov/RowNetWeb/Estates/frmDocketImages.aspx?src=row&RecordId=975544913
-                        personal_reps = soup.find(
-                            name="span", attrs={"id": "lblPersonalReps"}).text
-                        tmp = 0
-                        l_names = []
-                        while tmp < len(personal_reps):
-                            found = personal_reps.find("[", tmp)
-                            if found == -1:
-                                break
-                            personal_reps_name = personal_reps[tmp:found]
-                            found2 = personal_reps.find("]", found+1)
-                            personal_reps_rest = personal_reps[found+1:found2]
-                            tmp = found2+1
-                            l_names.append(
-                                (personal_reps_name, personal_reps_rest))
+                            soup = BeautifulSoup(response.content, 'html.parser')
+                            data[idx].append(
+                                capwords(soup.find(name="span", attrs={"id": "lblName"}).text))
+                            data[idx].append(
+                                capwords(soup.find(name="span", attrs={"id": "lblWill"}).text))
+                            data[idx].append(capwords(soup.find(name="span", attrs={
+                                "id": "lblDateOfWill"}).text))
+                            # https://registers.maryland.gov/RowNetWeb/Estates/frmDocketImages.aspx?src=row&RecordId=975129107
+                            # https://registers.maryland.gov/RowNetWeb/Estates/frmDocketImages.aspx?src=row&RecordId=975544913
+                            personal_reps = soup.find(
+                                name="span", attrs={"id": "lblPersonalReps"}).text
+                            tmp = 0
+                            l_names = []
+                            while tmp < len(personal_reps):
+                                found = personal_reps.find("[", tmp)
+                                if found == -1:
+                                    break
+                                personal_reps_name = personal_reps[tmp:found]
+                                found2 = personal_reps.find("]", found+1)
+                                personal_reps_rest = personal_reps[found+1:found2]
+                                tmp = found2+1
+                                l_names.append(
+                                    (personal_reps_name, personal_reps_rest))
 
-                        rem = len(data[idx])
-                        if not l_names:
-                            l_names = [("", "")]
+                            rem = len(data[idx])
+                            if not l_names:
+                                l_names = [("", "")]
 
-                        ret = split_name(l_names[0][0])
-                        for item in ret:
-                            data[idx].append(capwords(item))
+                            ret = split_name(l_names[0][0])
+                            for item in ret:
+                                data[idx].append(capwords(item))
 
-                        ret = split_address(l_names[0][1])
-                        for item in ret:
-                            data[idx].append(item)
+                            ret = split_address(l_names[0][1])
+                            for item in ret:
+                                data[idx].append(item)
 
-                        data[idx].append(capwords(soup.find(name="span", attrs={
-                            "id": "lblDateOpened"}).text))
-                        data[idx].append(capwords(soup.find(name="span", attrs={
-                            "id": "lblDateClosed"}).text))
-                        attorney = soup.find(name="span", attrs={
-                            "id": "lblAttorney"}).text
+                            data[idx].append(capwords(soup.find(name="span", attrs={
+                                "id": "lblDateOpened"}).text))
+                            data[idx].append(capwords(soup.find(name="span", attrs={
+                                "id": "lblDateClosed"}).text))
+                            attorney = soup.find(name="span", attrs={
+                                "id": "lblAttorney"}).text
 
-                        tmp = 0
-                        l_attorney = []
-                        while tmp < len(attorney):
-                            found = attorney.find("[", tmp)
-                            if found == -1:
-                                break
-                            attorney_name = attorney[tmp:found]
-                            found2 = attorney.find("]", found+1)
-                            attorney_rest = attorney[found+1:found2]
-                            tmp = found2+1
-                            l_attorney.append((attorney_name, attorney_rest))
+                            tmp = 0
+                            l_attorney = []
+                            while tmp < len(attorney):
+                                found = attorney.find("[", tmp)
+                                if found == -1:
+                                    break
+                                attorney_name = attorney[tmp:found]
+                                found2 = attorney.find("]", found+1)
+                                attorney_rest = attorney[found+1:found2]
+                                tmp = found2+1
+                                l_attorney.append((attorney_name, attorney_rest))
 
-                        rem2 = len(data[idx])
-                        if not l_attorney:
-                            l_attorney = [("", "")]
-                        ret = split_name(l_attorney[0][0])
-                        for item in ret:
-                            data[idx].append(capwords(item))
+                            rem2 = len(data[idx])
+                            if not l_attorney:
+                                l_attorney = [("", "")]
+                            ret = split_name(l_attorney[0][0])
+                            for item in ret:
+                                data[idx].append(capwords(item))
 
-                        ret = split_address(l_attorney[0][1])
-                        for item in ret:
-                            data[idx].append(item)
+                            ret = split_address(l_attorney[0][1])
+                            for item in ret:
+                                data[idx].append(item)
 
-                        csv_writer.writerow(data[idx])
+                            csv_writer.writerow(data[idx])
 
-                        if len(l_names) > 1:
-                            for i in range(1, len(l_names)):
-                                ret = split_name(l_names[i][0])
-                                for item in ret:
-                                    data[idx][rem] = capwords(item)
-                                    rem += 1
+                            if len(l_names) > 1:
+                                t_rem = rem
+                                for i in range(1, len(l_names)):
+                                    rem = t_rem
+                                    ret = split_name(l_names[i][0])
+                                    for item in ret:
+                                        data[idx][rem] = capwords(item)
+                                        rem += 1
 
-                                ret = split_address(l_names[i][1])
-                                for item in ret:
-                                    data[idx][rem] = item
-                                    rem += 1
-                                csv_writer.writerow(data[idx])
+                                    ret = split_address(l_names[i][1])
+                                    for item in ret:
+                                        data[idx][rem] = item
+                                        rem += 1
+                                    csv_writer.writerow(data[idx])
 
-                        if len(l_attorney) > 1:
-                            for i in range(1, len(l_attorney)):
-                                ret = split_name(l_attorney[i][0])
-                                for item in ret:
-                                    data[idx][rem2] = capwords(item)
-                                    rem2 += 1
+                            if len(l_attorney) > 1:
+                                t_rem2 = rem2
+                                for i in range(1, len(l_attorney)):
+                                    rem2 = t_rem2
+                                    ret = split_name(l_attorney[i][0])
+                                    for item in ret:
+                                        data[idx][rem2] = capwords(item)
+                                        rem2 += 1
 
-                                ret = split_address(l_attorney[i][1])
-                                for item in ret:
-                                    data[idx][rem2] = item
-                                    rem2 += 1
-                                csv_writer.writerow(data[idx])
-                        idx += 1
+                                    ret = split_address(l_attorney[i][1])
+                                    for item in ret:
+                                        data[idx][rem2] = item
+                                        rem2 += 1
+                                    csv_writer.writerow(data[idx])
+                            idx += 1
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
+                            Errors.append(f"Problem with record #{index+1} with link: {link}")
                     print(
                         f"Extracting {in_county} records from {self.in_date_range_from} to {self.in_date_range_to} is done.")
             print("Finished.")
+            if Errors:
+                print("\n\nErrors happened: ")
+                for i, error in enumerate(Errors):
+                    print(f"#{i}: {error}")
         except Exception as e:
             print(e)
             exc_type, exc_obj, exc_tb = sys.exc_info()
