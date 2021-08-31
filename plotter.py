@@ -152,7 +152,10 @@ class myThread(QThread):
                             cnt += 1
                             col_data = []
                             for col in cols:
-                                col_data.append(capwords(col.text))
+                                if col == cols[0]:
+                                    col_data.append(f"{capwords(col.text)}{'' if col.text == 'Baltimore City' else ' County'}")
+                                else:
+                                    col_data.append(capwords(col.text))
                                 try:
                                     links.append(
                                         f"https://registers.maryland.gov/RowNetWeb/Estates/{col.find('a')['href']}")
@@ -214,7 +217,10 @@ class myThread(QThread):
                                 cnt += 1
                                 col_data = []
                                 for col in cols:
-                                    col_data.append(capwords(col.text))
+                                    if col == cols[0]:
+                                        col_data.append(f"{capwords(col.text)}{'' if col.text == 'Baltimore City' else ' County'}")
+                                    else:
+                                        col_data.append(capwords(col.text))
                                     try:
                                         links.append(
                                             f"https://registers.maryland.gov/RowNetWeb/Estates/{col.find('a')['href']}")
@@ -254,8 +260,7 @@ class myThread(QThread):
                                 capwords(soup.find(name="span", attrs={"id": "lblWill"}).text))
                             data[idx].append(capwords(soup.find(name="span", attrs={
                                 "id": "lblDateOfWill"}).text))
-                            # https://registers.maryland.gov/RowNetWeb/Estates/frmDocketImages.aspx?src=row&RecordId=975129107
-                            # https://registers.maryland.gov/RowNetWeb/Estates/frmDocketImages.aspx?src=row&RecordId=975544913
+                
                             personal_reps = soup.find(
                                 name="span", attrs={"id": "lblPersonalReps"}).text
                             tmp = 0
@@ -357,7 +362,7 @@ class myThread(QThread):
                 with open(error_file, mode="w") as f:
                     f.write(f"{len(Errors)} Errors happened: \n")
                     for i, error in enumerate(Errors):
-                        f.write(f"#{i+1}: county {error[0]}, record #{error[1]+1}, link {error[2]}, {error[3]} at {error[4]}\n")
+                        f.write(f"#{i+1}: {error[0]} {'' if error[0] == 'Baltimore City' else 'County'}, record #{error[1]+1}, link {error[2]}, {error[3]} at {error[4]}\n")
         except Exception as e:
             print(e)
             exc_type, exc_obj, exc_tb = sys.exc_info()
